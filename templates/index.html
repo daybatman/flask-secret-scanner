@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Secret Scanner - Advanced Code & Directory Scanner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .scan-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .scan-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .scan-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.15);
+        }
+        
+        .scan-option.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #f8f9ff, #e3f2fd);
+        }
+        
+        .scan-option i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .scan-option h3 {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        
+        .scan-option p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+        
+        .scan-form {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .btn {
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #1e7e34);
+            border: none;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e0a800);
+            border: none;
+            color: #212529;
+        }
+        
+        .results-container {
+            margin-top: 40px;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .secret-item {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .secret-type {
+            font-weight: 700;
+            color: var(--danger-color);
+            margin-bottom: 5px;
+        }
+        
+        .secret-value {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .stats-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload-area:hover {
+            border-color: var(--primary-color);
+            background: #f8f9ff;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: var(--primary-color);
+            background: #e3f2fd;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .scan-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-search"></i> Secret Scanner</h1>
+                <p>Advanced Code & Directory Scanner for Security Auditing</p>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Scan Options -->
+                <div class="scan-options">
+                    <div class="scan-option" onclick="selectOption('text')">
+                        <i class="fas fa-keyboard"></i>
+                        <h3>Text Input</h3>
+                        <p>Paste your code directly for instant scanning</p>
+                    </div>
+                    <div class="scan-option" onclick="selectOption('file')">
+                        <i class="fas fa-file-upload"></i>
+                        <h3>File Upload</h3>
+                        <p>Upload individual files for scanning</p>
+                    </div>
+                    <div class="scan-option" onclick="selectOption('zip')">
+                        <i class="fas fa-file-archive"></i>
+                        <h3>ZIP Archive</h3>
+                        <p>Upload a ZIP file to scan multiple files</p>
+                    </div>
+                </div>
+                
+                <!-- Scan Form -->
+                <div class="scan-form">
+                    <!-- Text Input Form -->
+                    <form id="textForm" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Paste your code here:</label>
+                            <textarea class="form-control" id="textContent" rows="15" placeholder="Paste your code, configuration files, or any text content here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Scan Text
+                        </button>
+                    </form>
+                    
+                    <!-- File Upload Form -->
+                    <form id="fileForm" style="display: none;" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="form-label">Select files to scan:</label>
+                            <div class="file-upload-area" onclick="document.getElementById('files').click()">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                <h5>Click to select files or drag and drop</h5>
+                                <p class="text-muted">Supported formats: .txt, .py, .js, .java, .php, .rb, .go, .rs, .swift, .kt, .scala, .sh, .bash, .zsh, .fish, .ps1, .bat, .cmd, .yml, .yaml, .json, .xml, .html, .htm, .css, .scss, .sass, .less, .sql, .md, .rst, .ini, .cfg, .conf, .env, .properties, .toml, .lock, .log, .csv, .tsv, .dat, .bak, .tmp, .temp</p>
+                            </div>
+                            <input type="file" id="files" name="files" multiple accept=".txt,.py,.js,.jsx,.ts,.tsx,.java,.c,.cpp,.h,.hpp,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.sh,.bash,.zsh,.fish,.ps1,.bat,.cmd,.yml,.yaml,.json,.xml,.html,.htm,.css,.scss,.sass,.less,.sql,.md,.rst,.ini,.cfg,.conf,.env,.properties,.toml,.lock,.log,.csv,.tsv,.dat,.bak,.tmp,.temp" style="display: none;">
+                        </div>
+                        <div id="fileList" class="mb-3"></div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Scan Files
+                        </button>
+                    </form>
+                    
+                    <!-- ZIP Upload Form -->
+                    <form id="zipForm" style="display: none;" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="form-label">Upload ZIP file:</label>
+                            <div class="file-upload-area" onclick="document.getElementById('zipFile').click()">
+                                <i class="fas fa-file-archive fa-3x text-muted mb-3"></i>
+                                <h5>Click to select ZIP file or drag and drop</h5>
+                                <p class="text-muted">Upload a ZIP archive containing files to scan</p>
+                            </div>
+                            <input type="file" id="zipFile" name="zip_file" accept=".zip" style="display: none;">
+                        </div>
+                        <div id="zipFileInfo" class="mb-3"></div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Scan ZIP
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Loading -->
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h4 class="mt-3">Scanning for secrets...</h4>
+                    <p class="text-muted">This may take a few moments depending on the size of your content.</p>
+                </div>
+                
+                <!-- Results -->
+                <div id="results" class="results-container" style="display: none;">
+                    <!-- Stats -->
+                    <div class="stats-card">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="stats-number" id="totalSecrets">0</div>
+                                <div class="stats-label">Secrets Found</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stats-number" id="filesScanned">0</div>
+                                <div class="stats-label">Files Scanned</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stats-number" id="filesWithSecrets">0</div>
+                                <div class="stats-label">Files with Secrets</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Export Buttons -->
+                    <div class="text-center mb-4">
+                        <h5>Export Results:</h5>
+                        <div class="export-buttons">
+                            <button class="btn btn-success" onclick="exportResults('json')">
+                                <i class="fas fa-file-code"></i> JSON
+                            </button>
+                            <button class="btn btn-warning" onclick="exportResults('csv')">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                            <button class="btn btn-info" onclick="exportResults('txt')">
+                                <i class="fas fa-file-text"></i> TXT
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Content -->
+                    <div id="resultsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentOption = null;
+        
+        function selectOption(option) {
+            // Remove active class from all options
+            document.querySelectorAll('.scan-option').forEach(el => el.classList.remove('active'));
+            
+            // Hide all forms
+            document.getElementById('textForm').style.display = 'none';
+            document.getElementById('fileForm').style.display = 'none';
+            document.getElementById('zipForm').style.display = 'none';
+            
+            // Show selected option and form
+            event.currentTarget.classList.add('active');
+            currentOption = option;
+            
+            if (option === 'text') {
+                document.getElementById('textForm').style.display = 'block';
+            } else if (option === 'file') {
+                document.getElementById('fileForm').style.display = 'block';
+            } else if (option === 'zip') {
+                document.getElementById('zipForm').style.display = 'block';
+            }
+        }
+        
+        // File upload handling
+        document.getElementById('files').addEventListener('change', function(e) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            Array.from(e.target.files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'alert alert-info';
+                fileItem.innerHTML = `<i class="fas fa-file"></i> ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                fileList.appendChild(fileItem);
+            });
+        });
+        
+        // ZIP file handling
+        document.getElementById('zipFile').addEventListener('change', function(e) {
+            const fileInfo = document.getElementById('zipFileInfo');
+            if (e.target.files[0]) {
+                const file = e.target.files[0];
+                fileInfo.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-file-archive"></i> ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)
+                    </div>
+                `;
+            }
+        });
+        
+        // Form submissions
+        document.getElementById('textForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const textContent = document.getElementById('textContent').value;
+            if (textContent.trim()) {
+                scanContent('text', { text_content: textContent });
+            } else {
+                alert('Please enter some text to scan.');
+            }
+        });
+        
+        document.getElementById('fileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const files = document.getElementById('files').files;
+            if (files.length > 0) {
+                const formData = new FormData();
+                Array.from(files).forEach(file => {
+                    formData.append('files', file);
+                });
+                formData.append('scan_type', 'file');
+                scanContent('file', formData);
+            } else {
+                alert('Please select at least one file to scan.');
+            }
+        });
+        
+        document.getElementById('zipForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const zipFile = document.getElementById('zipFile').files[0];
+            if (zipFile) {
+                const formData = new FormData();
+                formData.append('zip_file', zipFile);
+                formData.append('scan_type', 'zip');
+                scanContent('zip', formData);
+            } else {
+                alert('Please select a ZIP file to scan.');
+            }
+        });
+        
+        function scanContent(type, data) {
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            fetch('/scan', {
+                method: 'POST',
+                body: data
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                displayResults(data);
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                alert('Error during scanning: ' + error.message);
+            });
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            // Update stats
+            if (data.type === 'text') {
+                document.getElementById('totalSecrets').textContent = data.total_secrets || 0;
+                document.getElementById('filesScanned').textContent = '1';
+                document.getElementById('filesWithSecrets').textContent = data.total_secrets > 0 ? '1' : '0';
+            } else {
+                document.getElementById('totalSecrets').textContent = data.results.reduce((sum, file) => 
+                    sum + file.findings.reduce((fileSum, finding) => fileSum + finding[1].length, 0), 0);
+                document.getElementById('filesScanned').textContent = data.files_scanned || 0;
+                document.getElementById('filesWithSecrets').textContent = data.files_with_secrets || 0;
+            }
+            
+            // Display results
+            resultsContent.innerHTML = '';
+            
+            if (data.error) {
+                resultsContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${data.error}
+                    </div>
+                `;
+            } else if (data.type === 'text') {
+                if (data.findings && data.findings.length > 0) {
+                    data.findings.forEach(finding => {
+                        const findingDiv = document.createElement('div');
+                        findingDiv.className = 'result-card';
+                        findingDiv.innerHTML = `
+                            <h5><i class="fas fa-exclamation-triangle text-danger"></i> ${finding[0]}</h5>
+                            ${finding[1].map(match => `
+                                <div class="secret-item">
+                                    <div class="secret-type">${finding[0]}</div>
+                                    <div class="secret-value">${match}</div>
+                                </div>
+                            `).join('')}
+                        `;
+                        resultsContent.appendChild(findingDiv);
+                    });
+                } else {
+                    resultsContent.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> No secrets found in the text!
+                        </div>
+                    `;
+                }
+            } else {
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(fileResult => {
+                        const fileDiv = document.createElement('div');
+                        fileDiv.className = 'result-card';
+                        fileDiv.innerHTML = `
+                            <h5><i class="fas fa-file text-primary"></i> ${fileResult.filename}</h5>
+                            ${fileResult.findings.map(finding => `
+                                <div class="secret-item">
+                                    <div class="secret-type">${finding[0]}</div>
+                                    ${finding[1].map(match => `
+                                        <div class="secret-value">${match}</div>
+                                    `).join('')}
+                                </div>
+                            `).join('')}
+                        `;
+                        resultsContent.appendChild(fileDiv);
+                    });
+                } else {
+                    resultsContent.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> No secrets found in the scanned files!
+                        </div>
+                    `;
+                }
+            }
+            
+            resultsDiv.style.display = 'block';
+        }
+        
+        function exportResults(format) {
+            window.open(`/export/${format}`, '_blank');
+        }
+        
+        // Drag and drop functionality
+        function setupDragAndDrop() {
+            const dropAreas = document.querySelectorAll('.file-upload-area');
+            
+            dropAreas.forEach(area => {
+                area.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    area.classList.add('dragover');
+                });
+                
+                area.addEventListener('dragleave', () => {
+                    area.classList.remove('dragover');
+                });
+                
+                area.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    area.classList.remove('dragover');
+                    
+                    const files = e.dataTransfer.files;
+                    if (area.parentElement.querySelector('#files')) {
+                        // File upload
+                        const fileInput = area.parentElement.querySelector('#files');
+                        fileInput.files = files;
+                        fileInput.dispatchEvent(new Event('change'));
+                    } else if (area.parentElement.querySelector('#zipFile')) {
+                        // ZIP upload
+                        const zipInput = area.parentElement.querySelector('#zipFile');
+                        if (files[0] && files[0].name.endsWith('.zip')) {
+                            zipInput.files = files;
+                            zipInput.dispatchEvent(new Event('change'));
+                        } else {
+                            alert('Please drop a ZIP file.');
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+        });
+    </script>
+</body>
+</html> 
