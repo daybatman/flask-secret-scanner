@@ -10,9 +10,11 @@ frontend:
     build:
       commands:
         - echo "Building Flask application..."
-        - echo "Flask app is ready for deployment"
+        - echo "Creating static build..."
+        - mkdir -p public
+        - echo '<!DOCTYPE html><html><head><title>Secret Scanner</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{font-family:Arial,sans-serif;text-align:center;padding:50px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}h1{font-size:3rem;margin-bottom:20px;}.container{background:rgba(255,255,255,0.1);padding:30px;border-radius:15px;backdrop-filter:blur(10px);}.btn{display:inline-block;background:#007bff;color:white;padding:15px 30px;text-decoration:none;border-radius:10px;margin:10px;transition:all 0.3s;}.btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,123,255,0.3);}</style></head><body><div class="container"><h1>🔍 Secret Scanner</h1><p>This Flask application requires server-side processing and cannot be deployed as a static site on AWS Amplify.</p><p>Please use one of these deployment options:</p><a href="https://aws.amazon.com/elasticbeanstalk/" class="btn">AWS Elastic Beanstalk</a><a href="https://aws.amazon.com/ecs/" class="btn">AWS ECS/Fargate</a><a href="https://heroku.com" class="btn">Heroku</a><a href="https://render.com" class="btn">Render</a><p style="margin-top:30px;font-size:0.9rem;">For detailed deployment instructions, see the README.md file.</p></div></body></html>' > public/index.html
   artifacts:
-    baseDirectory: /
+    baseDirectory: public
     files:
       - '**/*'
   cache:
