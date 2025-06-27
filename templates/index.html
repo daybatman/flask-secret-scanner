@@ -519,14 +519,28 @@
             const resultsDiv = document.getElementById('results');
             const resultsContent = document.getElementById('resultsContent');
             
-            // Update stats
+            // Update stats with proper error handling
             if (data.type === 'text') {
                 document.getElementById('totalSecrets').textContent = data.total_secrets || 0;
                 document.getElementById('filesScanned').textContent = '1';
                 document.getElementById('filesWithSecrets').textContent = data.total_secrets > 0 ? '1' : '0';
             } else {
-                document.getElementById('totalSecrets').textContent = data.results.reduce((sum, file) => 
-                    sum + file.findings.reduce((fileSum, finding) => fileSum + finding[1].length, 0), 0);
+                // Fix the reduce error by adding proper checks
+                let totalSecrets = 0;
+                if (data.results && Array.isArray(data.results)) {
+                    totalSecrets = data.results.reduce((sum, file) => {
+                        if (file.findings && Array.isArray(file.findings)) {
+                            return sum + file.findings.reduce((fileSum, finding) => {
+                                if (Array.isArray(finding) && finding.length > 1) {
+                                    return fileSum + (finding[1] ? finding[1].length : 0);
+                                }
+                                return fileSum;
+                            }, 0);
+                        }
+                        return sum;
+                    }, 0);
+                }
+                document.getElementById('totalSecrets').textContent = totalSecrets;
                 document.getElementById('filesScanned').textContent = data.files_scanned || 0;
                 document.getElementById('filesWithSecrets').textContent = data.files_with_secrets || 0;
             }
